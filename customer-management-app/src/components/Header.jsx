@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { useContext } from 'react';
+
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { toggleTheme } = useContext(ThemeContext);
