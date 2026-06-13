@@ -207,16 +207,17 @@ const CustomerList = () => {
                 <td>{customer.Email}</td>
                 <td>{customer.Telephone}</td>
                 <td>{getCityName(customer.CityId)}</td>
-                {isAuthenticated && (
+                
                   <td>
                     <div className="action-buttons">
+                      <Protected>
                       <button 
                         onClick={() => handleViewBills(customer)}
                         className="btn-primary btn-small"
                       >
                         Računi
                       </button>
-                      <Protected>
+                      
                       <button 
                         onClick={() => handleEdit(customer)}
                         className="btn-warning btn-small"
@@ -232,7 +233,6 @@ const CustomerList = () => {
                       </Protected>
                     </div>
                   </td>
-                )}
               </tr>
             ))}
           </tbody>
