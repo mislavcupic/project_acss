@@ -11,7 +11,7 @@ function App() {
   const [theme, setTheme] = useState('light');
   const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
 
-  // Sinkronizacija teme s body klasom
+  //sink teme i body class
   useEffect(() => {
     document.body.className = theme;
   }, [theme]);

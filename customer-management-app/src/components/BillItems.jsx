@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { itemAPI, productAPI } from '../api';
 import ItemForm from './ItemForm';
-
+import {Protected} from './Protected';
 
 const BillItems = ({ billId, onClose }) => {
   const [items, setItems] = useState([]);
@@ -107,6 +107,7 @@ const BillItems = ({ billId, onClose }) => {
                   <td>{item.Quantity}</td>
                   <td>{Number(item.TotalPrice).toFixed(2)} €</td>
                   <td>
+                  <Protected>
                     <div className="action-buttons">
                       <button 
                         onClick={() => handleEdit(item)}
@@ -121,6 +122,7 @@ const BillItems = ({ billId, onClose }) => {
                         Obriši
                       </button>
                     </div>
+                    </Protected>
                   </td>
                 </tr>
               ))}

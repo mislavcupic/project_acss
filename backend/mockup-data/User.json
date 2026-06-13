@@ -1,8 +1,16 @@
 [
-    {
-        "id": 1,
-        "name": "admin",
-        "email": "admin@email.com",
-        "password": "123qweasd"
-    }
+  {
+      "id": 1,
+      "name": "admin",
+      "email": "admin@email.com",
+      "password": "123qweasd",
+      "role": "admin" 
+  },
+  {
+      "id": 2,
+      "name": "korisnik",
+      "email": "user@email.com",
+      "password": "user123",
+      "role": "user"
+  }
 ]

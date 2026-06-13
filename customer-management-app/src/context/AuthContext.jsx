@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -6,14 +7,12 @@ const ACTION = {
   LOGIN: 'LOGIN',
   LOGOUT: 'LOGOUT',
   RESTORE_SESSION: 'RESTORE_SESSION'
-}
-// Reducer za upravljanje auth stanjem
-// treba mi const[state,dispatch] = useReducer(authReducer,state)
+};
 
 const authReducer = (state, action) => {
-  switch (action.type){
+  switch (action.type) {
     case ACTION.LOGIN:
-    
+    case ACTION.RESTORE_SESSION:
       return {
         ...state,
         isAuthenticated: true,
@@ -26,13 +25,6 @@ const authReducer = (state, action) => {
         isAuthenticated: false,
         user: null,
         token: null
-      };
-    case ACTION.RESTORE_SESSION:
-      return {
-        ...state,
-        isAuthenticated: !!action.payload.token,
-        user: action.payload.user,
-        token: action.payload.token
       };
     default:
       return state;
@@ -48,39 +40,44 @@ const initialState = {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Učitaj session iz localStorage pri mount
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-      dispatch({
-        type: ACTION.RESTORE_SESSION,
-        payload: {
-          token,
-          user: JSON.parse(user)
-        }
-      });
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        dispatch({
+          type: ACTION.RESTORE_SESSION,
+          payload: { token, user: decoded }
+        });
+      } catch (error) {
+        logout();
+      }
     }
   }, []);
 
   const login = (token, user) => {
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+    const decoded = jwtDecode(token);
+    console.log("Sadržaj dekodiranog tokena:", decoded);
+    const userData = { ...user, ...decoded };
+
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    
     dispatch({
       type: ACTION.LOGIN,
-      payload: { token, user }
+      payload: { token, user: userData }
     });
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-      localStorage.removeItem('user');
+    localStorage.removeItem('user');
     dispatch({ type: ACTION.LOGOUT });
   };
 
   return (
     <AuthContext.Provider value={{ ...state, login, logout }}>
+      {console.log("Stanje auth-a:", state.isAuthenticated)}
       {children}
     </AuthContext.Provider>
   );

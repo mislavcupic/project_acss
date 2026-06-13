@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { customerAPI, cityAPI } from '../api';
 import CustomerForm from './CustomerForm';
 import CustomerBills from './CustomerBills';
-
+import { Protected } from './Protected';
 const CustomerList = () => {
   const { isAuthenticated } = useAuth();
   
@@ -216,6 +216,7 @@ const CustomerList = () => {
                       >
                         Računi
                       </button>
+                      <Protected>
                       <button 
                         onClick={() => handleEdit(customer)}
                         className="btn-warning btn-small"
@@ -228,6 +229,7 @@ const CustomerList = () => {
                       >
                         Obriši
                       </button>
+                      </Protected>
                     </div>
                   </td>
                 )}
