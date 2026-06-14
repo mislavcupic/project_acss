@@ -3,7 +3,6 @@ import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import CustomerList from './components/CustomerList';
 import Login from './components/Login';
-import './styles.css';
 import { ThemeContext } from './context/ThemeContext';
 import { useState, useEffect } from 'react'; // Dodan useEffect
 

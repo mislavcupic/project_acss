@@ -205,13 +205,13 @@ const CustomerList = () => {
               <td>
                 <Protected>
                   <div className="d-flex gap-2 flex-wrap">
-                    <Button size="sm" variant="dark" onClick={() => handleViewBills(customer)}>
+                    <Button size="sm" variant="info" onClick={() => handleViewBills(customer)}>
                       Računi
                     </Button>
                     <Button size="sm" variant="warning" onClick={() => handleEdit(customer)}>
                       Uredi
                     </Button>
-                    <Button size="sm" variant="outline-dark" onClick={() => handleDelete(customer)}>
+                    <Button size="sm" variant="danger" onClick={() => handleDelete(customer)}>
                       Obriši
                     </Button>
                   </div>
