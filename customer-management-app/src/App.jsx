@@ -11,10 +11,9 @@ function App() {
   const [theme, setTheme] = useState('light');
   const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
 
-  //sink teme i body class
-  useEffect(() => {
-    document.body.className = theme;
-  }, [theme]);
+useEffect(() => {
+  document.documentElement.setAttribute('data-bs-theme', theme);
+}, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
