@@ -2,11 +2,10 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { useContext } from 'react';
-
+import { BsSun, BsMoon } from 'react-icons/bs';
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const { toggleTheme } = useContext(ThemeContext);
-
+  const { theme, toggleTheme } = useContext(ThemeContext);
   return (
     <header className="header">
       <div className="container">
@@ -22,9 +21,9 @@ const Header = () => {
                 <button onClick={logout} className="btn-danger">
                   Odjava
                 </button>
-                 <button onClick={toggleTheme} className="btn-secondary btn-small">
-                        Toggle Theme
-                      </button>
+               <button onClick={toggleTheme}>
+  {theme === 'light' ? <BsMoon size={20} /> : <BsSun size={20} />}
+</button>
               </div>
             ) : (
               <Link to="/login">
