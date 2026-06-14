@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Form, Button, Alert } from 'react-bootstrap';
 
 const ItemForm = ({ item, products, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,6 @@ const ItemForm = ({ item, products, onSave, onCancel }) => {
     }
   }, [item]);
 
-  // Automatski izračunaj cijenu
   useEffect(() => {
     if (formData.ProductId && formData.Quantity) {
       const product = products.find(p => p.Id === parseInt(formData.ProductId));
@@ -31,15 +31,9 @@ const ItemForm = ({ item, products, onSave, onCancel }) => {
 
   const validate = () => {
     const newErrors = {};
-    
-    if (!formData.ProductId) {
-      newErrors.ProductId = 'Proizvod je obavezan';
-    }
-    
-    if (!formData.Quantity || parseFloat(formData.Quantity) <= 0) {
+    if (!formData.ProductId) newErrors.ProductId = 'Proizvod je obavezan';
+    if (!formData.Quantity || parseFloat(formData.Quantity) <= 0)
       newErrors.Quantity = 'Količina mora biti veća od 0';
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -47,9 +41,7 @@ const ItemForm = ({ item, products, onSave, onCancel }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = (e) => {
@@ -66,13 +58,14 @@ const ItemForm = ({ item, products, onSave, onCancel }) => {
   const selectedProduct = products.find(p => p.Id === parseInt(formData.ProductId));
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label>Proizvod *</label>
-        <select
+    <Form onSubmit={handleSubmit}>
+      <Form.Group className="mb-3">
+        <Form.Label>Proizvod *</Form.Label>
+        <Form.Select
           name="ProductId"
           value={formData.ProductId}
           onChange={handleChange}
+          isInvalid={!!errors.ProductId}
         >
           <option value="">Odaberi proizvod</option>
           {products.map(product => (
@@ -80,55 +73,48 @@ const ItemForm = ({ item, products, onSave, onCancel }) => {
               {product.Name} - {product.Price} €
             </option>
           ))}
-        </select>
-        {errors.ProductId && <div className="error">{errors.ProductId}</div>}
-      </div>
+        </Form.Select>
+        <Form.Control.Feedback type="invalid">{errors.ProductId}</Form.Control.Feedback>
+      </Form.Group>
 
       {selectedProduct && (
-        <div style={{ 
-          padding: '10px', 
-          background: '#e8f4f8', 
-          borderRadius: '4px',
-          marginBottom: '1rem'
-        }}>
-          <p style={{ margin: 0, fontSize: '0.9rem', color: '#2c3e50' }}>
-            Cijena po jedinici: <strong>{selectedProduct.Price} €</strong>
-          </p>
-        </div>
+        <Alert variant="info" className="py-2">
+          Cijena po jedinici: <strong>{selectedProduct.Price} €</strong>
+        </Alert>
       )}
 
-      <div className="form-group">
-        <label>Količina *</label>
-        <input
+      <Form.Group className="mb-3">
+        <Form.Label>Količina *</Form.Label>
+        <Form.Control
           type="number"
           name="Quantity"
           min="0.01"
           step="0.01"
           value={formData.Quantity}
           onChange={handleChange}
+          isInvalid={!!errors.Quantity}
         />
-        {errors.Quantity && <div className="error">{errors.Quantity}</div>}
-      </div>
+        <Form.Control.Feedback type="invalid">{errors.Quantity}</Form.Control.Feedback>
+      </Form.Group>
 
-      <div className="form-group">
-        <label>Ukupna cijena</label>
-        <input
+      <Form.Group className="mb-4">
+        <Form.Label>Ukupna cijena</Form.Label>
+        <Form.Control
           type="number"
           value={formData.TotalPrice}
           disabled
-          style={{ background: '#f5f5f5' }}
         />
-      </div>
+      </Form.Group>
 
-      <div className="modal-actions">
-        <button type="button" onClick={onCancel} className="btn-primary">
+      <div className="d-flex justify-content-end gap-2">
+        <Button variant="outline-dark" type="button" onClick={onCancel}>
           Odustani
-        </button>
-        <button type="submit" className="btn-success">
+        </Button>
+        <Button variant="dark" type="submit">
           Spremi
-        </button>
+        </Button>
       </div>
-    </form>
+    </Form>
   );
 };
 

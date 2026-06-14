@@ -1,7 +1,8 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { itemAPI, productAPI } from '../api';
 import ItemForm from './ItemForm';
-import {Protected} from './Protected';
+import { Protected } from './Protected';
+import { Table, Button, Spinner, Modal } from 'react-bootstrap';
 
 const BillItems = ({ billId, onClose }) => {
   const [items, setItems] = useState([]);
@@ -9,7 +10,6 @@ const BillItems = ({ billId, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-
 
   useEffect(() => {
     loadData();
@@ -41,10 +41,8 @@ const BillItems = ({ billId, onClose }) => {
     setShowForm(true);
   };
 
-  
   const handleDelete = async (item) => {
     if (!window.confirm('Obrisati stavku?')) return;
-    
     try {
       await itemAPI.delete(item.Id);
       loadData();
@@ -74,78 +72,75 @@ const BillItems = ({ billId, onClose }) => {
   };
 
   if (loading) {
-    return <div className="loading">Učitavanje stavki...</div>;
+    return (
+      <div className="d-flex justify-content-center p-4">
+        <Spinner animation="border" />
+      </div>
+    );
   }
 
   return (
     <div>
-      <button onClick={handleAdd} className="btn-success">
-        + Dodaj stavku
-      </button>
-      
-      <button onClick={onClose} className="btn-primary" style={{ marginLeft: '10px' }}>
-        Zatvori
-      </button>
+      <div className="d-flex gap-2 mb-3">
+        <Button variant="dark" onClick={handleAdd}>
+          + Dodaj stavku
+        </Button>
+        <Button variant="outline-dark" onClick={onClose}>
+          Zatvori
+        </Button>
+      </div>
 
       {items.length === 0 ? (
-        <p style={{ marginTop: '20px' }}>Nema stavki za prikaz</p>
+        <p className="text-muted">Nema stavki za prikaz</p>
       ) : (
-        <div className="table-container" style={{ marginTop: '20px' }}>
-          <table>
-            <thead>
-              <tr>
-                <th>Proizvod</th>
-                <th>Količina</th>
-                <th>Ukupna cijena</th>
-                <th>Akcije</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map(item => (
-                <tr key={item.Id}>
-                  <td>{getProductName(item.ProductId)}</td>
-                  <td>{item.Quantity}</td>
-                  <td>{Number(item.TotalPrice).toFixed(2)} €</td>
-                  <td>
+        <Table striped bordered hover responsive>
+          <thead className="table-dark">
+            <tr>
+              <th>Proizvod</th>
+              <th>Količina</th>
+              <th>Ukupna cijena</th>
+              <th>Akcije</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(item => (
+              <tr key={item.Id}>
+                <td>{getProductName(item.ProductId)}</td>
+                <td>{item.Quantity}</td>
+                <td>{Number(item.TotalPrice).toFixed(2)} €</td>
+                <td>
                   <Protected>
-                    <div className="action-buttons">
-                      <button 
-                        onClick={() => handleEdit(item)}
-                        className="btn-warning btn-small"
-                      >
+                    <div className="d-flex gap-2 flex-wrap">
+                      <Button size="sm" variant="warning" onClick={() => handleEdit(item)}>
                         Uredi
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(item)}
-                        className="btn-danger btn-small"
-                      >
+                      </Button>
+                      <Button size="sm" variant="outline-dark" onClick={() => handleDelete(item)}>
                         Obriši
-                      </button>
+                      </Button>
                     </div>
-                    </Protected>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </Protected>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       )}
 
-      {showForm && (
-        <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedItem ? 'Uredi stavku' : 'Dodaj stavku'}</h2>
-            <ItemForm
-              item={selectedItem}
-              products={products}
-              onSave={handleSave}
-              onCancel={() => setShowForm(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Modal — dodaj/uredi stavku */}
+      <Modal show={showForm} onHide={() => setShowForm(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedItem ? 'Uredi stavku' : 'Dodaj stavku'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <ItemForm
+            item={selectedItem}
+            products={products}
+            onSave={handleSave}
+            onCancel={() => setShowForm(false)}
+          />
+        </Modal.Body>
+      </Modal>
     </div>
-  
   );
 };
 

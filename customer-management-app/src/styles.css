@@ -196,3 +196,11 @@ body.dark .search-box input {
   border-color: #333;
   color: #fff;
 }
+
+.table-container {
+  overflow-x: auto; 
+}
+
+.controls {
+  flex-wrap: wrap; 
+}

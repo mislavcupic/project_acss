@@ -4,30 +4,30 @@ import { customerAPI, cityAPI } from '../api';
 import CustomerForm from './CustomerForm';
 import CustomerBills from './CustomerBills';
 import { Protected } from './Protected';
+import {
+  Container, Row, Col, Table, Button, Form,
+  Spinner, Alert, Modal, Pagination
+} from 'react-bootstrap';
+
 const CustomerList = () => {
   const { isAuthenticated } = useAuth();
-  
-  // State
+
   const [customers, setCustomers] = useState([]);
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Pagination
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  
-  // Search i Sort
+
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState('Name');
   const [sortDirection, setSortDirection] = useState('asc');
-  
-  // Modals
+
   const [showForm, setShowForm] = useState(false);
   const [showBills, setShowBills] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-  // Učitaj podatke
   useEffect(() => {
     loadData();
   }, []);
@@ -48,7 +48,6 @@ const CustomerList = () => {
     }
   };
 
-  // Filter customers based on search
   const filteredCustomers = customers.filter(customer => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -60,11 +59,9 @@ const CustomerList = () => {
     );
   });
 
-  // Sort customers
   const sortedCustomers = [...filteredCustomers].sort((a, b) => {
     const aVal = a[sortField] || '';
     const bVal = b[sortField] || '';
-    
     if (sortDirection === 'asc') {
       return aVal > bVal ? 1 : -1;
     } else {
@@ -72,7 +69,6 @@ const CustomerList = () => {
     }
   });
 
-  // Pagination
   const totalPages = Math.ceil(sortedCustomers.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const paginatedCustomers = sortedCustomers.slice(startIndex, startIndex + pageSize);
@@ -87,10 +83,7 @@ const CustomerList = () => {
   };
 
   const handleDelete = async (customer) => {
-    if (!window.confirm(`Obrisati kupca ${customer.Name} ${customer.Surname}?`)) {
-      return;
-    }
-    
+    if (!window.confirm(`Obrisati kupca ${customer.Name} ${customer.Surname}?`)) return;
     try {
       await customerAPI.delete(customer.Id);
       loadData();
@@ -134,160 +127,148 @@ const CustomerList = () => {
   };
 
   if (loading) {
-    return <div className="loading">Učitavanje...</div>;
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
+        <Spinner animation="border" />
+      </Container>
+    );
   }
 
   if (error) {
     return (
-      <div className="container">
-        <div className="error">Greška: {error}</div>
-        <button onClick={loadData} className="btn-primary">Pokušaj ponovno</button>
-      </div>
+      <Container className="mt-4">
+        <Alert variant="danger">Greška: {error}</Alert>
+        <Button variant="dark" onClick={loadData}>Pokušaj ponovno</Button>
+      </Container>
     );
   }
 
   return (
-    <div className="container">
-      <h2>Popis kupaca</h2>
-      
-      <div className="controls">
-        <div className="search-box">
-          <input
+    <Container className="mt-4">
+      <h2 className="mb-3">Popis kupaca</h2>
+
+      <Row className="mb-3 g-2 align-items-center">
+        <Col xs={12} md={5}>
+          <Form.Control
             type="text"
             placeholder="Pretraži kupce..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
-        
-        <div>
-          <label>Prikaži: </label>
-          <select value={pageSize} onChange={(e) => {
-            setPageSize(Number(e.target.value));
-            setCurrentPage(1);
-          }}>
+        </Col>
+        <Col xs="auto">
+          <Form.Select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+          >
             <option value={10}>10</option>
             <option value={20}>20</option>
             <option value={50}>50</option>
-          </select>
-        </div>
-        
+          </Form.Select>
+        </Col>
         {isAuthenticated && (
-          <button onClick={handleAdd} className="btn-success">
-            + Dodaj kupca
-          </button>
+          <Col xs="auto">
+            <Button variant="dark" onClick={handleAdd}>
+              + Dodaj kupca
+            </Button>
+          </Col>
         )}
-      </div>
+      </Row>
 
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th onClick={() => handleSort('Name')}>
-                Ime {sortField === 'Name' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th onClick={() => handleSort('Surname')}>
-                Prezime {sortField === 'Surname' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th onClick={() => handleSort('Email')}>
-                Email {sortField === 'Email' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th onClick={() => handleSort('Telephone')}>
-                Telefon {sortField === 'Telephone' && (sortDirection === 'asc' ? '↑' : '↓')}
-              </th>
-              <th>Grad</th>
-              {isAuthenticated && <th>Akcije</th>}
+      <Table striped bordered hover responsive>
+        <thead className="table-dark">
+          <tr>
+            <th style={{ cursor: 'pointer' }} onClick={() => handleSort('Name')}>
+              Ime {sortField === 'Name' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </th>
+            <th style={{ cursor: 'pointer' }} onClick={() => handleSort('Surname')}>
+              Prezime {sortField === 'Surname' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </th>
+            <th style={{ cursor: 'pointer' }} onClick={() => handleSort('Email')}>
+              Email {sortField === 'Email' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </th>
+            <th style={{ cursor: 'pointer' }} onClick={() => handleSort('Telephone')}>
+              Telefon {sortField === 'Telephone' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </th>
+            <th>Grad</th>
+            {isAuthenticated && <th>Akcije</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedCustomers.map(customer => (
+            <tr key={customer.Id}>
+              <td>{customer.Name}</td>
+              <td>{customer.Surname}</td>
+              <td>{customer.Email}</td>
+              <td>{customer.Telephone}</td>
+              <td>{getCityName(customer.CityId)}</td>
+              <td>
+                <Protected>
+                  <div className="d-flex gap-2 flex-wrap">
+                    <Button size="sm" variant="dark" onClick={() => handleViewBills(customer)}>
+                      Računi
+                    </Button>
+                    <Button size="sm" variant="warning" onClick={() => handleEdit(customer)}>
+                      Uredi
+                    </Button>
+                    <Button size="sm" variant="outline-dark" onClick={() => handleDelete(customer)}>
+                      Obriši
+                    </Button>
+                  </div>
+                </Protected>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {paginatedCustomers.map(customer => (
-              <tr key={customer.Id}>
-                <td>{customer.Name}</td>
-                <td>{customer.Surname}</td>
-                <td>{customer.Email}</td>
-                <td>{customer.Telephone}</td>
-                <td>{getCityName(customer.CityId)}</td>
-                
-                  <td>
-                    <div className="action-buttons">
-                      <Protected>
-                      <button 
-                        onClick={() => handleViewBills(customer)}
-                        className="btn-primary btn-small"
-                      >
-                        Računi
-                      </button>
-                      
-                      <button 
-                        onClick={() => handleEdit(customer)}
-                        className="btn-warning btn-small"
-                      >
-                        Uredi
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(customer)}
-                        className="btn-danger btn-small"
-                      >
-                        Obriši
-                      </button>
-                      </Protected>
-                    </div>
-                  </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </Table>
 
-      <div className="pagination">
-        <div>
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2">
+        <span className="text-muted small">
           Prikazano {startIndex + 1} - {Math.min(startIndex + pageSize, sortedCustomers.length)} od {sortedCustomers.length}
-        </div>
-        <div className="pagination-buttons">
-          <button 
+        </span>
+        <Pagination className="mb-0">
+          <Pagination.Prev
             onClick={() => setCurrentPage(p => p - 1)}
             disabled={currentPage === 1}
-            className="btn-primary"
-          >
-            Prethodna
-          </button>
-          <span>Stranica {currentPage} od {totalPages}</span>
-          <button 
+          />
+          <Pagination.Item active>{currentPage} od {totalPages}</Pagination.Item>
+          <Pagination.Next
             onClick={() => setCurrentPage(p => p + 1)}
             disabled={currentPage === totalPages}
-            className="btn-primary"
-          >
-            Sljedeća
-          </button>
-        </div>
+          />
+        </Pagination>
       </div>
 
-      {showForm && (
-        <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedCustomer ? 'Uredi kupca' : 'Dodaj kupca'}</h2>
-            <CustomerForm
-              customer={selectedCustomer}
-              cities={cities}
-              onSave={handleSaveCustomer}
-              onCancel={() => setShowForm(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Modal — dodaj/uredi kupca */}
+      <Modal show={showForm} onHide={() => setShowForm(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedCustomer ? 'Uredi kupca' : 'Dodaj kupca'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <CustomerForm
+            customer={selectedCustomer}
+            cities={cities}
+            onSave={handleSaveCustomer}
+            onCancel={() => setShowForm(false)}
+          />
+        </Modal.Body>
+      </Modal>
 
-      {showBills && selectedCustomer && (
-        <div className="modal-overlay" onClick={() => setShowBills(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>Računi - {selectedCustomer.Name} {selectedCustomer.Surname}</h2>
-            <CustomerBills 
-              customerId={selectedCustomer.Id}
-              onClose={() => setShowBills(false)}
-            />
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Modal — računi kupca */}
+      <Modal show={showBills} onHide={() => setShowBills(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Računi — {selectedCustomer?.Name} {selectedCustomer?.Surname}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <CustomerBills
+            customerId={selectedCustomer?.Id}
+            onClose={() => setShowBills(false)}
+          />
+        </Modal.Body>
+      </Modal>
+    </Container>
   );
 };
 

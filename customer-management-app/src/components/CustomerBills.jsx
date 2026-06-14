@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { billAPI, itemAPI, productAPI } from '../api';
+import { billAPI } from '../api';
 import BillForm from './BillForm';
 import BillItems from './BillItems';
+import { Table, Button, Spinner, Modal } from 'react-bootstrap';
 
 const CustomerBills = ({ customerId, onClose }) => {
   const [bills, setBills] = useState([]);
@@ -38,7 +39,6 @@ const CustomerBills = ({ customerId, onClose }) => {
 
   const handleDeleteBill = async (bill) => {
     if (!window.confirm('Obrisati račun?')) return;
-    
     try {
       await billAPI.delete(bill.Id);
       loadBills();
@@ -68,91 +68,87 @@ const CustomerBills = ({ customerId, onClose }) => {
   };
 
   if (loading) {
-    return <div className="loading">Učitavanje računa...</div>;
+    return (
+      <div className="d-flex justify-content-center p-4">
+        <Spinner animation="border" />
+      </div>
+    );
   }
 
   return (
     <div>
-      <button onClick={handleAddBill} className="btn-success">
-        + Dodaj račun
-      </button>
-      
-      <button onClick={onClose} className="btn-primary" style={{ marginLeft: '10px' }}>
-        Zatvori
-      </button>
+      <div className="d-flex gap-2 mb-3">
+        <Button variant="dark" onClick={handleAddBill}>
+          + Dodaj račun
+        </Button>
+        <Button variant="outline-dark" onClick={onClose}>
+          Zatvori
+        </Button>
+      </div>
 
       {bills.length === 0 ? (
-        <p style={{ marginTop: '20px' }}>Nema računa za prikaz</p>
+        <p className="text-muted">Nema računa za prikaz</p>
       ) : (
-        <div className="table-container" style={{ marginTop: '20px' }}>
-          <table>
-            <thead>
-              <tr>
-                <th>Broj računa</th>
-                <th>Datum</th>
-                <th>Prodavač ID</th>
-                <th>Akcije</th>
+        <Table striped bordered hover responsive>
+          <thead className="table-dark">
+            <tr>
+              <th>Broj računa</th>
+              <th>Datum</th>
+              <th>Prodavač ID</th>
+              <th>Akcije</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bills.map(bill => (
+              <tr key={bill.Id}>
+                <td>{bill.BillNumber}</td>
+                <td>{new Date(bill.Date).toLocaleDateString('hr-HR')}</td>
+                <td>{bill.SellerId}</td>
+                <td>
+                  <div className="d-flex gap-2 flex-wrap">
+                    <Button size="sm" variant="dark" onClick={() => handleViewItems(bill)}>
+                      Stavke
+                    </Button>
+                    <Button size="sm" variant="warning" onClick={() => handleEditBill(bill)}>
+                      Uredi
+                    </Button>
+                    <Button size="sm" variant="outline-dark" onClick={() => handleDeleteBill(bill)}>
+                      Obriši
+                    </Button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {bills.map(bill => (
-                <tr key={bill.Id}>
-                  <td>{bill.BillNumber}</td>
-                  <td>{new Date(bill.Date).toLocaleDateString('hr-HR')}</td>
-                  <td>{bill.SellerId}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <button 
-                        onClick={() => handleViewItems(bill)}
-                        className="btn-primary btn-small"
-                      >
-                        Stavke
-                      </button>
-                      <button 
-                        onClick={() => handleEditBill(bill)}
-                        className="btn-warning btn-small"
-                      >
-                        Uredi
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteBill(bill)}
-                        className="btn-danger btn-small"
-                      >
-                        Obriši
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </Table>
       )}
 
-      {showBillForm && (
-        <div className="modal-overlay" onClick={() => setShowBillForm(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedBill ? 'Uredi račun' : 'Dodaj račun'}</h2>
-            <BillForm
-              bill={selectedBill}
-              onSave={handleSaveBill}
-              onCancel={() => setShowBillForm(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Modal — dodaj/uredi račun */}
+      <Modal show={showBillForm} onHide={() => setShowBillForm(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedBill ? 'Uredi račun' : 'Dodaj račun'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <BillForm
+            bill={selectedBill}
+            onSave={handleSaveBill}
+            onCancel={() => setShowBillForm(false)}
+          />
+        </Modal.Body>
+      </Modal>
 
-      {showItems && selectedBill && (
-        <div className="modal-overlay" onClick={() => setShowItems(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>Stavke računa #{selectedBill.BillNumber}</h2>
-            <BillItems
-              billId={selectedBill.Id}
-              onClose={() => setShowItems(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Modal — stavke računa */}
+      <Modal show={showItems} onHide={() => setShowItems(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Stavke računa #{selectedBill?.BillNumber}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <BillItems
+            billId={selectedBill?.Id}
+            onClose={() => setShowItems(false)}
+          />
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
