@@ -12,24 +12,26 @@ const BillItems = ({ billId, onClose }) => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
-    loadData();
+    if (billId) loadData(); // ← samo pozovi ako billId postoji
   }, [billId]);
 
   const loadData = async () => {
-    try {
-      setLoading(true);
-      const [itemsData, productsData] = await Promise.all([
-        itemAPI.getByBill(billId),
-        productAPI.getAll()
-      ]);
-      setItems(itemsData);
-      setProducts(productsData);
-    } catch (err) {
-      alert('Greška pri učitavanju: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    console.log('loadData pozvan s billId:', billId);
+    const [itemsData, productsData] = await Promise.all([
+      itemAPI.getByBill(billId),
+      productAPI.getAll()
+    ]);
+    console.log('itemsData koji je vratio backend:', itemsData);
+    setItems(itemsData);
+    setProducts(productsData);
+  } catch (err) {
+    alert('Greška pri učitavanju: ' + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleAdd = () => {
     setSelectedItem(null);
@@ -60,6 +62,7 @@ const BillItems = ({ billId, onClose }) => {
         await itemAPI.create(itemData);
       }
       setShowForm(false);
+      setSelectedItem(null); // ← resetiraj selectedItem nakon spremi
       loadData();
     } catch (err) {
       alert('Greška pri spremanju: ' + err.message);
@@ -67,7 +70,7 @@ const BillItems = ({ billId, onClose }) => {
   };
 
   const getProductName = (productId) => {
-    const product = products.find(p => p.Id === productId);
+    const product = products.find(p => p.Id === parseInt(productId)); // ← parseInt za sigurnost
     return product ? product.Name : '-';
   };
 
@@ -127,17 +130,19 @@ const BillItems = ({ billId, onClose }) => {
       )}
 
       {/* Modal — dodaj/uredi stavku */}
-      <Modal show={showForm} onHide={() => setShowForm(false)} centered>
+      <Modal show={showForm} onHide={() => { setShowForm(false); setSelectedItem(null); }} centered>
         <Modal.Header closeButton>
           <Modal.Title>{selectedItem ? 'Uredi stavku' : 'Dodaj stavku'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <ItemForm
-            item={selectedItem}
-            products={products}
-            onSave={handleSave}
-            onCancel={() => setShowForm(false)}
-          />
+          {showForm && ( // ← mountaj formu tek kad je modal otvoren
+            <ItemForm
+              item={selectedItem}
+              products={products}
+              onSave={handleSave}
+              onCancel={() => { setShowForm(false); setSelectedItem(null); }}
+            />
+          )}
         </Modal.Body>
       </Modal>
     </div>

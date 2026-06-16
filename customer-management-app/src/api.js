@@ -90,7 +90,8 @@ export const billAPI = {
     body: JSON.stringify({
       date: data.Date,
       billNumber: data.BillNumber,
-      sellerId: parseInt(data.SellerId)
+      sellerId: parseInt(data.SellerId),
+      customerId: data.CustomerId  // ← dodano: PUT bez ovoga izgubi customerId
     })
   }),
   delete: (id) => apiCall(`/bill/${id}`, { method: 'DELETE' })
@@ -120,6 +121,7 @@ export const itemAPI = {
     method: 'PUT',
     body: JSON.stringify({
       productId: data.ProductId,
+      billId: data.BillId,     // ← dodano: PUT bez ovoga izgubi billId pa stavka nestane
       quantity: data.Quantity,
       totalPrice: data.TotalPrice
     })

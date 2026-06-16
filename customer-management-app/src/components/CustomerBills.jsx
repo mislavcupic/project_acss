@@ -10,6 +10,7 @@ const CustomerBills = ({ customerId, onClose }) => {
   const [showBillForm, setShowBillForm] = useState(false);
   const [showItems, setShowItems] = useState(false);
   const [selectedBill, setSelectedBill] = useState(null);
+  const [activeBillForItems, setActiveBillForItems] = useState(null); // ← NOVO: odvojen state za stavke
 
   useEffect(() => {
     loadBills();
@@ -48,7 +49,7 @@ const CustomerBills = ({ customerId, onClose }) => {
   };
 
   const handleViewItems = (bill) => {
-    setSelectedBill(bill);
+    setActiveBillForItems(bill); // ← koristi odvojeni state, ne selectedBill
     setShowItems(true);
   };
 
@@ -61,6 +62,7 @@ const CustomerBills = ({ customerId, onClose }) => {
         await billAPI.create(billData);
       }
       setShowBillForm(false);
+      setSelectedBill(null); // ← resetiraj selectedBill nakon spremi
       loadBills();
     } catch (err) {
       alert('Greška pri spremanju: ' + err.message);
@@ -124,7 +126,7 @@ const CustomerBills = ({ customerId, onClose }) => {
       )}
 
       {/* Modal — dodaj/uredi račun */}
-      <Modal show={showBillForm} onHide={() => setShowBillForm(false)} centered>
+      <Modal show={showBillForm} onHide={() => { setShowBillForm(false); setSelectedBill(null); }} centered>
         <Modal.Header closeButton>
           <Modal.Title>{selectedBill ? 'Uredi račun' : 'Dodaj račun'}</Modal.Title>
         </Modal.Header>
@@ -132,7 +134,7 @@ const CustomerBills = ({ customerId, onClose }) => {
           <BillForm
             bill={selectedBill}
             onSave={handleSaveBill}
-            onCancel={() => setShowBillForm(false)}
+            onCancel={() => { setShowBillForm(false); setSelectedBill(null); }}
           />
         </Modal.Body>
       </Modal>
@@ -140,13 +142,15 @@ const CustomerBills = ({ customerId, onClose }) => {
       {/* Modal — stavke računa */}
       <Modal show={showItems} onHide={() => setShowItems(false)} centered size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Stavke računa #{selectedBill?.BillNumber}</Modal.Title>
+          <Modal.Title>Stavke računa #{activeBillForItems?.BillNumber}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <BillItems
-            billId={selectedBill?.Id}
-            onClose={() => setShowItems(false)}
-          />
+          {activeBillForItems && (
+            <BillItems
+              billId={activeBillForItems.Id}
+              onClose={() => setShowItems(false)}
+            />
+          )}
         </Modal.Body>
       </Modal>
     </div>
