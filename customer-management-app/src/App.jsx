@@ -3,19 +3,13 @@ import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import CustomerList from './components/CustomerList';
 import Login from './components/Login';
-import { ThemeContext } from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { useState, useEffect } from 'react'; // Dodan useEffect
 
 function App() {
-  const [theme, setTheme] = useState('light');
-  const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-
-useEffect(() => {
-  document.documentElement.setAttribute('data-bs-theme', theme);
-}, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
           <div>
@@ -27,7 +21,7 @@ useEffect(() => {
           </div>
         </BrowserRouter>
       </AuthProvider>
-    </ThemeContext.Provider>
+    </ThemeProvider>
   );
 }
 

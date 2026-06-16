@@ -178,6 +178,7 @@ const CustomerList = () => {
       <Table striped bordered hover responsive>
         <thead className="table-dark">
           <tr>
+            {/* strelica možemo i ovako{"\u2191"}*/}
             <th style={{ cursor: 'pointer' }} onClick={() => handleSort('Name')}>
               Ime {sortField === 'Name' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
