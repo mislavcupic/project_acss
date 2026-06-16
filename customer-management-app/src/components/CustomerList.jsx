@@ -166,13 +166,13 @@ const CustomerList = () => {
             <option value={50}>50</option>
           </Form.Select>
         </Col>
-        {isAuthenticated && (
+        <Protected>
           <Col xs="auto">
             <Button variant="dark" onClick={handleAdd}>
               + Dodaj kupca
             </Button>
           </Col>
-        )}
+        </Protected>
       </Row>
 
       <Table striped bordered hover responsive>
