@@ -16,6 +16,9 @@ const Header = () => {
           {isAuthenticated ? (
             <>
               <Navbar.Text>Pozdrav, {user?.email}</Navbar.Text>
+              <Button variant={theme === 'light' ? 'outline-dark' : 'outline-light'} size="sm" as={Link} to="/profile">
+                Profil
+              </Button>
               <Button variant={theme === 'light' ? 'outline-dark' : 'outline-light'} size="sm" onClick={logout}>
                 Odjava
               </Button>
@@ -24,9 +27,16 @@ const Header = () => {
               </Button>
             </>
           ) : (
+            <>
+             <Button variant={theme === 'light' ? 'outline-dark' : 'outline-light'} size="sm" as={Link} to="/register">
+      Registracija
+             </Button>
             <Button variant={theme === 'light' ? 'dark' : 'light'} size="sm" as={Link} to="/login">
               Prijava
             </Button>
+            </>
+            
+            
           )}
         </div>
       </Container>

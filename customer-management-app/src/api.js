@@ -22,11 +22,18 @@ const apiCall = async (endpoint, options = {}) => {
   return response.json();
 };
 
+
 export const authAPI = {
   login: (email, password) => 
     apiCall('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password })
+    }),
+
+  register: (name, email, password) =>
+    apiCall('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password, role: 'user' })
     }),
 };
 

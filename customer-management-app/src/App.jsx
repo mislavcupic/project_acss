@@ -4,7 +4,9 @@ import Header from './components/Header';
 import CustomerList from './components/CustomerList';
 import Login from './components/Login';
 import { ThemeProvider } from './context/ThemeContext';
-import { useState, useEffect } from 'react'; // Dodan useEffect
+import { useState, useEffect } from 'react'; 
+import Register from './components/Register';
+import ProfilePage from './components/ProfilePage'
 
 function App() {
 
@@ -17,6 +19,9 @@ function App() {
             <Routes>
               <Route path="/" element={<CustomerList />} />
               <Route path="/login" element={<Login />} />
+               <Route path="/register" element={<Register />} />   
+              <Route path="/profile"  element={<ProfilePage />} /> 
+              
             </Routes>
           </div>
         </BrowserRouter>
