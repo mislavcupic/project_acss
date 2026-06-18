@@ -1,16 +1,37 @@
 [
   {
-      "id": 1,
-      "name": "admin",
-      "email": "admin@email.com",
-      "password": "123qweasd",
-      "role": "admin" 
+    "id": 1,
+    "name": "admin",
+    "email": "admin@email.com",
+    "password": "123qweasd",
+    "role": "admin"
   },
   {
-      "id": 2,
-      "name": "korisnik",
-      "email": "user@email.com",
-      "password": "user123",
-      "role": "user"
+    "id": 2,
+    "name": "korisnik",
+    "email": "user@email.com",
+    "password": "user123",
+    "role": "user"
+  },
+  {
+    "id": 3,
+    "name": "Krešimir Blajić",
+    "email": "kreso@bla.hr",
+    "password": "Kresimir",
+    "role": "user"
+  },
+  {
+    "id": 4,
+    "name": "Mislav Čupić",
+    "email": "mislav@gmail.com",
+    "password": "Biozzz",
+    "role": "user"
+  },
+  {
+    "id": 5,
+    "name": "Milan Dukić",
+    "email": "milance@gmail.com",
+    "password": "BilaMila111",
+    "role": "user"
   }
 ]

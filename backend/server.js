@@ -32,7 +32,6 @@ function createToken(payload) {
 server.post("/auth/login", (req, res) => {
   console.log("POST /auth/login");
   const { email, password } = req.body;
-  // Promjena: dohvat korisnika iz baze
   const user = dbUsers().find((u) => u.email == email && u.password == password).value();
   if (!user) {
     const status = 401;
@@ -40,17 +39,46 @@ server.post("/auth/login", (req, res) => {
     res.status(status).json(respJson);
     return;
   }
-  // Promjena: rola u tokenu
   const access_token = createToken({ email: user.email, role: user.role });
   res.status(200).json({ access_token });
 });
 
 server.post("/auth/register", (req, res) => {
   console.log("POST /auth/register");
-  const resource = dbUsers().insert(req.body).value();
-  const status = 200;
-  res.status(status).json(resource);
+  
+  const usersPath = require('path').join(__dirname, 'mockup-data', 'User.json');
+  const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+  
+  const newUser = {
+    id: users.length + 1,
+    ...req.body
+  };
+  
+  users.push(newUser);
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+  lowdb.get("User").push(newUser).value();
+  
+  res.status(200).json(newUser);
 });
+
+
+server.post("/auth/register", (req, res) => {
+  console.log("POST /auth/register");
+  
+  const usersPath = require('path').join(__dirname, 'mockup-data', 'User.json');
+  const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+  
+  const newUser = {
+    id: users.length + 1,
+    ...req.body
+  };
+  
+  users.push(newUser);
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+  lowdb.get("User").push(newUser).value();
+  res.status(200).json(newUser);
+});
+
 
 function verifyToken(token) {
   return jwt.verify(token, SECRET_KEY, (err, decode) =>
